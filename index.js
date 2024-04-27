@@ -25,14 +25,25 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    const touristsCollection = client.db('tourists-spot-DB').collection('tourists-spot');
+    const touristsCollection = client
+      .db("tourists-spot-DB")
+      .collection("tourists-spot");
 
-    app.post("/all-tourists-spot", async (req, res) => {
-        const newTouristsSpot = req.body;
-        console.log(newTouristsSpot);
-        const result = await touristsCollection.insertOne(newTouristsSpot);
+    // Find all data of all-tourists-spot from MongoDB
+    app.get("/all-tourists-spot/:userName", async (req, res) => {
+        const userName = req.params.userName;
+        const query = { userName: userName };
+        const cursor = touristsCollection.find(query);
+        const result = await cursor.toArray();
         res.send(result);
     })
+
+    app.post("/all-tourists-spot", async (req, res) => {
+      const newTouristsSpot = req.body;
+      console.log(newTouristsSpot);
+      const result = await touristsCollection.insertOne(newTouristsSpot);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
@@ -41,7 +52,7 @@ async function run() {
     );
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
