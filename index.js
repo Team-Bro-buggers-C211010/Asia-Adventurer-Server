@@ -29,6 +29,20 @@ async function run() {
       .db("tourists-spot-DB")
       .collection("tourists-spot");
 
+
+    app.get("/all-tourists-spot", async (req, res) => {
+      const cursor = touristsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
+    app.get("/all-tourists-spot/:sortType", async (req, res) => {
+      const sortType = req.params.sortType;
+      const cursor = touristsCollection.find().sort({avgCost: sortType});
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
     // Find all data of all-tourists-spot from MongoDB
     app.get("/all-tourists-spot/:userEmail", async (req, res) => {
         const userEmail = req.params.userEmail;
