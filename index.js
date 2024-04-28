@@ -38,12 +38,42 @@ async function run() {
         res.send(result);
     })
 
+    app.get("/all-tourists-spot/current-spot/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await touristsCollection.findOne(query);
+      res.send(result); 
+    })
+
     app.post("/all-tourists-spot", async (req, res) => {
       const newTouristsSpot = req.body;
       console.log(newTouristsSpot);
       const result = await touristsCollection.insertOne(newTouristsSpot);
       res.send(result);
     });
+
+    // update a data from MongoDB
+    app.put("/all-tourists-spot/:id", async (req, res) => {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+        const updateSpot = req.body;
+        const newSpot = {
+            $set: {
+                spotName: updateSpot.spotName,
+                country: updateSpot.country,
+                location: updateSpot.location,
+                description: updateSpot.description,
+                season: updateSpot.season,
+                travelTime: updateSpot.travelTime,
+                avgCost: updateSpot.avgCost,
+                visitors: updateSpot.visitors,
+                photo: updateSpot.photo
+            }
+        }
+        const result = await touristsCollection.updateOne(filter, newSpot, options);
+        res.send(result);
+    })
 
     // delete a data from MongoDB
     app.delete("/all-tourists-spot/:id", async (req, res) => {
