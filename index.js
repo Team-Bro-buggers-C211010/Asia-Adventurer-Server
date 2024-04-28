@@ -3,7 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 // Middleware
 app.use(cors());
@@ -30,9 +30,9 @@ async function run() {
       .collection("tourists-spot");
 
     // Find all data of all-tourists-spot from MongoDB
-    app.get("/all-tourists-spot/:userName", async (req, res) => {
-        const userName = req.params.userName;
-        const query = { userName: userName };
+    app.get("/all-tourists-spot/:userEmail", async (req, res) => {
+        const userEmail = req.params.userEmail;
+        const query = { userEmail: userEmail };
         const cursor = touristsCollection.find(query);
         const result = await cursor.toArray();
         res.send(result);
@@ -43,6 +43,14 @@ async function run() {
       console.log(newTouristsSpot);
       const result = await touristsCollection.insertOne(newTouristsSpot);
       res.send(result);
+    });
+
+    // delete a data from MongoDB
+    app.delete("/all-tourists-spot/:id", async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await touristsCollection.deleteOne(query);
+        res.send(result);
     });
 
     // Send a ping to confirm a successful connection
