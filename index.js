@@ -29,35 +29,44 @@ async function run() {
       .db("tourists-spot-DB")
       .collection("tourists-spot");
 
+    const countriesCollection = client
+      .db("tourists-spot-DB")
+      .collection("countries");
+
+    app.get("/countries", async (req, res) => {
+      const cursor = countriesCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
     app.get("/all-tourists-spot", async (req, res) => {
       const cursor = touristsCollection.find();
       const result = await cursor.toArray();
       res.send(result);
-    })
+    });
 
-    app.get("/all-tourists-spot/:sortType", async (req, res) => {
+    app.get("/all-tourists-spot/sort/:sortType", async (req, res) => {
       const sortType = req.params.sortType;
-      const cursor = touristsCollection.find().sort({avgCost: sortType});
+      const cursor = touristsCollection.find().sort({ avgCost: sortType });
       const result = await cursor.toArray();
       res.send(result);
-    })
+    });
 
     // Find all data of all-tourists-spot from MongoDB
     app.get("/all-tourists-spot/:userEmail", async (req, res) => {
-        const userEmail = req.params.userEmail;
-        const query = { userEmail: userEmail };
-        const cursor = touristsCollection.find(query);
-        const result = await cursor.toArray();
-        res.send(result);
-    })
+      const userEmail = req.params.userEmail;
+      const query = { userEmail: userEmail };
+      const cursor = touristsCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
     app.get("/all-tourists-spot/current-spot/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await touristsCollection.findOne(query);
-      res.send(result); 
-    })
+      res.send(result);
+    });
 
     app.post("/all-tourists-spot", async (req, res) => {
       const newTouristsSpot = req.body;
@@ -68,33 +77,37 @@ async function run() {
 
     // update a data from MongoDB
     app.put("/all-tourists-spot/:id", async (req, res) => {
-        const id = req.params.id;
-        const filter = { _id: new ObjectId(id) };
-        const options = { upsert: true };
-        const updateSpot = req.body;
-        const newSpot = {
-            $set: {
-                spotName: updateSpot.spotName,
-                country: updateSpot.country,
-                location: updateSpot.location,
-                description: updateSpot.description,
-                season: updateSpot.season,
-                travelTime: updateSpot.travelTime,
-                avgCost: updateSpot.avgCost,
-                visitors: updateSpot.visitors,
-                photo: updateSpot.photo
-            }
-        }
-        const result = await touristsCollection.updateOne(filter, newSpot, options);
-        res.send(result);
-    })
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateSpot = req.body;
+      const newSpot = {
+        $set: {
+          spotName: updateSpot.spotName,
+          country: updateSpot.country,
+          location: updateSpot.location,
+          description: updateSpot.description,
+          season: updateSpot.season,
+          travelTime: updateSpot.travelTime,
+          avgCost: updateSpot.avgCost,
+          visitors: updateSpot.visitors,
+          photo: updateSpot.photo,
+        },
+      };
+      const result = await touristsCollection.updateOne(
+        filter,
+        newSpot,
+        options
+      );
+      res.send(result);
+    });
 
     // delete a data from MongoDB
     app.delete("/all-tourists-spot/:id", async (req, res) => {
-        const id = req.params.id;
-        const query = { _id: new ObjectId(id) };
-        const result = await touristsCollection.deleteOne(query);
-        res.send(result);
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await touristsCollection.deleteOne(query);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
