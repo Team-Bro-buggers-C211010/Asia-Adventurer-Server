@@ -6,7 +6,15 @@ const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 // Middleware
-app.use(cors());
+app.use(cors(
+  {
+    origin: [
+      "https://localhost:5173",
+      "https://asia-adventurer.web.app",
+      "https://asia-adventurer.firebaseapp.com"
+    ],
+  }
+));
 app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.t8yk7hd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -23,7 +31,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const touristsCollection = client
       .db("tourists-spot-DB")
@@ -38,6 +46,14 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+
+    app.get("/tourists-country/:countryName", async (req, res) => {
+      const countryName = req.params.countryName;
+      const query = { country: countryName };
+      const cursor = touristsCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    })
 
     app.get("/all-tourists-spot", async (req, res) => {
       const cursor = touristsCollection.find();
@@ -111,10 +127,10 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
